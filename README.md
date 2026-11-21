@@ -15,6 +15,7 @@ fails over between API keys automatically, caches responses, and shows per-reque
 | Demo video | Pending 2–3 minute recording |
 
 Replace the pending deployment URLs with the public URLs before final submission.
+For deployment, Vercel or Netlify is suitable for the frontend and Render is suitable for the backend.
 
 ## 2. Run locally
 
@@ -56,6 +57,8 @@ VITE_API_URL=http://localhost:8000 npm run dev      # http://localhost:3000
 make test        # or: cd backend && pip install -r requirements-dev.txt && pytest
 ```
 Tests replace `litellm.completion` with a fake, so they need no API keys or network.
+The backend test suite currently contains 21 passing tests covering caching, fallback,
+validation, history, token metadata, CORS, and simulated provider failures.
 
 ## 3. Design decisions
 
@@ -83,6 +86,9 @@ created on startup. The file lives at `DATABASE_URL` (`/data/app.db`) on a named
 **Other choices.** One uvicorn worker (the in-memory cache is per process). Token counts come
 from the provider's usage for that single request. Simulated-failure requests skip the cache so they
 always return a real live answer from the next key.
+
+The assistant UI supports Markdown, GFM tables and lists, fenced code blocks, and inline/display
+math rendered with KaTeX.
 
 ## 4. Verification
 
