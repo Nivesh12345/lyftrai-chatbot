@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/$/, "");
 
@@ -68,6 +70,7 @@ export default function App() {
   const [input, setInput] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [systemOpen, setSystemOpen] = useState(false);
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -119,25 +122,51 @@ export default function App() {
   return (
     <div className="app">
       <header className="top">
-        <h1>Chat</h1>
-        <span className="session">Session {sessionId}</span>
+        <div>
+          <p className="eyebrow">LLM Workspace</p>
+          <h1>Chat</h1>
+        </div>
+        <div className="top-actions">
+          <span className="session">Session {sessionId}</span>
+          <button
+            type="button"
+            className="settings-button"
+            aria-expanded={systemOpen}
+            onClick={() => setSystemOpen((open) => !open)}
+          >
+            System prompt
+          </button>
+        </div>
       </header>
 
-      <section className="system">
-        <label htmlFor="system-prompt">System prompt for this session (optional)</label>
-        <textarea
-          id="system-prompt"
-          data-testid="system-prompt-input"
-          rows={2}
-          value={systemPrompt}
-          onChange={(e) => setSystemPrompt(e.target.value)}
-          placeholder="You are a helpful assistant."
-        />
-      </section>
+      {systemOpen && (
+        <section className="system">
+          <label htmlFor="system-prompt">System prompt for this session</label>
+          <textarea
+            id="system-prompt"
+            data-testid="system-prompt-input"
+            rows={2}
+            value={systemPrompt}
+            onChange={(e) => setSystemPrompt(e.target.value)}
+            placeholder="You are a helpful assistant."
+          />
+        </section>
+      )}
 
       <main className="thread" aria-live="polite">
         {items.length === 0 && !loading && (
-          <p className="empty">Send a message to start the conversation.</p>
+          <div className="empty">
+            <div className="empty-mark" aria-hidden="true">AI</div>
+            <h2>How can I help?</h2>
+            <p>Ask a question, request a summary, or start a conversation.</p>
+            <div className="suggestions">
+              {["Explain this concept simply", "Give me three ideas", "Write a concise plan"].map((suggestion) => (
+                <button key={suggestion} type="button" onClick={() => setInput(suggestion)}>
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
         {items.map((item, i) => {
           if (item.kind === "user") {
@@ -159,7 +188,18 @@ export default function App() {
           return (
             <div key={i} className="row">
               <div className="bubble assistant" data-testid="assistant-message">
-                <p className="reply">{item.text}</p>
+                <div className="reply markdown">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      a: ({ node: _, ...props }) => (
+                        <a {...props} target="_blank" rel="noreferrer" />
+                      ),
+                    }}
+                  >
+                    {item.text}
+                  </ReactMarkdown>
+                </div>
                 <Metadata meta={item.meta} />
               </div>
             </div>
