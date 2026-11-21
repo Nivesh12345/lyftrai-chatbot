@@ -8,11 +8,13 @@ fails over between API keys automatically, caches responses, and shows per-reque
 
 | Part | URL |
 |------|-----|
-| Frontend | Pending public Vercel deployment |
-| Backend | Pending public Render deployment |
-| Health | Pending public Render deployment |
+| Repository | https://github.com/Nivesh12345/lyftrai-chatbot |
+| Frontend | Pending public deployment |
+| Backend | Pending public deployment |
+| Health | Pending public deployment |
+| Demo video | Pending 2–3 minute recording |
 
-These URLs must be replaced with the final public URLs before submission.
+Replace the pending deployment URLs with the public URLs before final submission.
 
 ## 2. Run locally
 
@@ -22,6 +24,16 @@ cp .env.example .env      # then put 2+ real keys in LLM_API_KEYS
 make up                   # frontend http://localhost:3000, backend http://localhost:8000
 make down
 ```
+
+Add the second key in the project-root `.env` file only:
+
+```dotenv
+LLM_API_KEYS=first-real-key,second-real-key
+```
+
+The keys must be separate, comma-separated values, for example `key_1` and `key_2`.
+Never add real keys to `.env.example`, commit them to Git, or place them in the
+`frontend` environment. `.env` is ignored by Git.
 
 ### Without Docker
 ```bash
