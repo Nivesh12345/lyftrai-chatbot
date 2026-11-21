@@ -106,6 +106,13 @@ textarea:focus-visible, button:focus-visible { outline: 3px solid #8ea4f5; outli
 .markdown table { display: block; overflow-x: auto; border-collapse: collapse; }
 .markdown th, .markdown td { border: 1px solid var(--line); padding: 6px 9px; }
 .markdown th { background: #f2f5f8; }
+.markdown .katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0;
+}
+.markdown .katex { font-size: 1.04em; }
 
 .meta {
   margin: 0;
