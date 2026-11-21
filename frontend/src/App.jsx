@@ -26,6 +26,65 @@ function readableError(status, data) {
   return `The server returned an unexpected error (${status}). Try again.`;
 }
 
+function normalizeMarkdown(markdown) {
+  const lines = String(markdown ?? "").replace(/\r\n?/g, "\n").split("\n");
+  const output = [];
+  let fence = null;
+
+  for (const original of lines) {
+    const fenceMatch = original.match(/^\s*(`{3,}|~{3,})([^\s`]*)?\s*$/);
+
+    if (fenceMatch) {
+      const marker = fenceMatch[1][0];
+      if (fence) {
+        if (marker === fence.marker) {
+          output.push(`${fence.marker}${fence.marker}${fence.marker}`);
+          fence = null;
+        }
+      } else {
+        const language = (fenceMatch[2] || "").trim();
+        output.push(`${marker}${marker}${marker}${language ? ` ${language}` : ""}`);
+        fence = { marker, language };
+      }
+      continue;
+    }
+
+    if (fence) {
+      const trim = original.trim();
+      const plainFenceProse =
+        !fence.language &&
+        (/^#{1,6}\s/.test(trim) ||
+          /^[-*+]\s/.test(trim) ||
+          /^\d+[.)]\s/.test(trim) ||
+          /\*\*[^*]+\*\*/.test(trim) ||
+          /[.!?]$/.test(trim));
+      const namedFenceProse =
+        Boolean(fence.language) &&
+        !/^\s+/.test(original) &&
+        (/^#{1,6}\s/.test(original) ||
+          /^[-*+]\s/.test(original) ||
+          /^\d+[.)]\s/.test(original) ||
+          /^[A-Z][A-Za-z0-9 -]{3,}:/.test(original));
+
+      if ((plainFenceProse || namedFenceProse) && trim) {
+        output.push(`${fence.marker}${fence.marker}${fence.marker}`);
+        fence = null;
+      } else {
+        output.push(original);
+        continue;
+      }
+    }
+
+    output.push(original);
+  }
+
+  if (fence) {
+    output.push(`${fence.marker}${fence.marker}${fence.marker}`);
+  }
+
+  return output.join("\n");
+}
+
 function Metadata({ meta }) {
   const isCache = meta.resolution_source === "LLM_CACHE";
   return (
@@ -200,7 +259,7 @@ export default function App() {
                       ),
                     }}
                   >
-                    {item.text}
+                    {normalizeMarkdown(item.text)}
                   </ReactMarkdown>
                 </div>
                 <Metadata meta={item.meta} />

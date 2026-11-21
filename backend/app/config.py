@@ -2,7 +2,12 @@
 import os
 from dataclasses import dataclass, field
 
-DEFAULT_SYSTEM_PROMPT = "You are a helpful, concise assistant."
+DEFAULT_SYSTEM_PROMPT = (
+    "You are a helpful, concise assistant. "
+    "Format responses in valid Markdown. Use proper headings, lists, tables, and math. "
+    "Use fenced code blocks only for code, include a language name when known, "
+    "and always close every code fence."
+)
 
 
 def _bool(value: str | None) -> bool:
